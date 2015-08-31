@@ -14,19 +14,20 @@ import (
 	"unsafe"
 )
 
+// DevKind is the type of virtual device (TUN or TAP)
 type DevKind int
 
 const (
-	// Receive/send layer routable 3 packets (IP, IPv6...). Notably,
-	// you don't receive link-local multicast with this interface
-	// type.
+	// DevTun receives/sends layer routable 3 packets (IP, IPv6...). Notably, you
+	// don't receive link-local multicast with this interface type.
 	DevTun DevKind = iota
-	// Receive/send Ethernet II frames. You receive all packets that
-	// would be visible on an Ethernet link, including broadcast and
-	// multicast traffic.
+	// DevTap receives/sends Ethernet II frames. You receive all packets that
+	// would be visible on an Ethernet link, including broadcast and multicast
+	// traffic.
 	DevTap
 )
 
+// Packet represents a raw data packet.
 type Packet struct {
 	// The Ethernet type of the packet. Commonly seen values are
 	// 0x8000 for IPv4 and 0x86dd for IPv6.
@@ -38,12 +39,13 @@ type Packet struct {
 	Packet []byte
 }
 
+// Interface represents a tun/tap interface.
 type Interface struct {
 	name string
-	file     *os.File
+	file *os.File
 }
 
-// Disconnect from the tun/tap interface.
+// Close disconnects from the tun/tap interface.
 //
 // If the interface isn't configured to be persistent, it is
 // immediately destroyed by the kernel.
@@ -51,13 +53,13 @@ func (t *Interface) Close() error {
 	return t.file.Close()
 }
 
-// The name of the interface. May be different from the name given to
-// Open(), if the latter was a pattern.
+// Name returns the name of the interface. May be different from the name given
+// to Open(), if the latter was a pattern.
 func (t *Interface) Name() string {
 	return t.name
 }
 
-// Read a single packet from the kernel.
+// ReadPacket reads a single packet from the kernel.
 func (t *Interface) ReadPacket() (*Packet, error) {
 	buf := make([]byte, 10000)
 
@@ -75,7 +77,7 @@ func (t *Interface) ReadPacket() (*Packet, error) {
 	return pkt, nil
 }
 
-// Send a single packet to the kernel.
+// WritePacket sends a single packet to the kernel.
 func (t *Interface) WritePacket(pkt *Packet) error {
 	// If only we had writev(), I could do zero-copy here...
 	buf := make([]byte, len(pkt.Packet)+4)

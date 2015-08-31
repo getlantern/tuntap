@@ -15,13 +15,13 @@ import "C"
 const (
 	flagTruncated = C.TUN_PKT_STRIP
 
-	iffTun = C.IFF_TUN
-	iffTap = C.IFF_TAP
+	iffTun      = C.IFF_TUN
+	iffTap      = C.IFF_TAP
 	iffOneQueue = C.IFF_ONE_QUEUE
 )
 
 type ifReq struct {
-	Name [C.IFNAMSIZ]byte
+	Name  [C.IFNAMSIZ]byte
 	Flags uint16
-	pad [C.IFREQ_SIZE-C.IFNAMSIZ-2]byte
+	pad   [C.IFREQ_SIZE - C.IFNAMSIZ - 2]byte
 }
